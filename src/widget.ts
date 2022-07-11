@@ -1,32 +1,9 @@
-class EventEmitter {
-	on(event: string, cb: Function) {
 
-	}
+class Widget {
+	root: Root
 
-	once(event: string, cb: Function) {
-
-	}
-
-	off(event?: string, cb?: Function) {
-
-	}
-
-	emit(event: string, data: any) {
-
-	}
-}
-
-interface Visitor {
-	new(component: Widget, params?: Record<string, unknown>): void
-}
-
-class Widget extends EventEmitter{
-	constructor(visitors: [Visitor: Visitor, params: Record<string, unknown>][]) {
-		super();
-
-		for (const [Visitor, params] of visitors) {
-			new Visitor(this, params)
-		}
+	constructor(root: Root) {
+		this.root = root
 	}
 
 	render() {
@@ -38,22 +15,34 @@ class Widget extends EventEmitter{
 	}
 }
 
-class Analitycs {
-	constructor(component: Widget, events: Record<string, Function>) {
-		for (const [key, handler] of Object.entries(events)) {
-			component.on(key, handler)
-		}
+abstract class ILogin {
+	isLogin(): boolean {
+
+	}
+	ligin(): Promise<void> {
+
+	}
+
+	static login(): Promise<void>
+}
+
+abstract class IAccess {
+	isLogin(): boolean
+}
+
+class Root extends Widget implements ILogin {
+	isLogin(): boolean {
+		//
 	}
 }
 
 class Button extends Widget {
-
+	mounted() {
+		if (this.root.isLogin()) {
+			//
+		}
+	}
 }
 
-class Form extends Widget {
 
-}
 
-const btn = new Button([[Analitycs, {click: () => console.log('send ')}]])
-
-btn.on('sfa', () => {})
