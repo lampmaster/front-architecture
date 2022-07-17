@@ -90,3 +90,48 @@ export class NeverCache<V, K = string> implements AbstractCache<V, K> {
 
 	}
 }
+
+function ttlDecorator<T extends AbstractCache<any, any>>(ttl: number, cache: T): T {
+	const {
+		set: origSet,
+		get: origGet,
+		remove: origRemove,
+		clear: origClear,
+	} = cache
+
+	const timers = new Map<unknown, number>()
+
+	Object.assign(cache, {
+		set(key: unknown, value: unknown) {
+			if (timers.has(key)) {
+				clearTimeout(timers.get(key))
+			}
+
+			origSet.call(this, key, value)
+			timers.set(key, setTimeout(this.remove.bind(this, key), ttl))
+		},
+
+		remove(key: unknown) {
+			if (timers.has(key)) {
+				clearTimeout(timers.get(key))
+				timers.delete(key)
+			}
+
+			origRemove.call(this, key)
+		},
+
+		clear() {
+			for (const id of timers.values()) {
+				clearTimeout(id)
+			}
+
+			timers.clear()
+			origClear.call(this )
+		}
+	})
+
+	return cache
+}
+
+const lru = new LRUCache({size: 10})
+ttlDecorator(1000, lru)
